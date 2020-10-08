@@ -14,7 +14,7 @@ Player::Player(float wep_dps, int agility, float crit, float haste, float master
 
 }
 
-void Player::tick(float time_delta, Target& t)
+void Player::tick(float time_delta, Target* t)
 {
 	autoattack_timer += time_delta;
 	gcd_timer = std::max(gcd_timer - time_delta, 0.0f);
@@ -25,8 +25,8 @@ void Player::tick(float time_delta, Target& t)
 	if (autoattack_timer > base_auto_attack_speed) 
 	{
 		autoattack_timer = 0.0f;
-		AutoAttack a(*this);
-		t.resolve(a);
+		AutoAttack a(this);
+		t->resolve(a);
 	}
 	
 	//TODO: Perform action
@@ -35,8 +35,8 @@ void Player::tick(float time_delta, Target& t)
 void Player::update_buffs_and_stats(float time_delta) 
 {
 	//Update buff durations and delete expired buffs
-	for (std::list<Buff>::iterator i = stat_buffs.begin(); i != stat_buffs.end();) {
-		if ((*i).update_duration(time_delta) <= 0)
+	for (std::list<Buff*>::iterator i = stat_buffs.begin(); i != stat_buffs.end();) {
+		if ((*i)->update_duration(time_delta) <= 0)
 			i = stat_buffs.erase(i);
 		else
 			++i;

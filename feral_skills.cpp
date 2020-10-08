@@ -1,9 +1,9 @@
 #include "feral_skills.h"
-#include "skill.h"
+#include "player.h"
 
 AutoAttack::AutoAttack
 (
-	Player& player
+	Player* player
 ) :
 	Skill(player, {}, {}, {})
 {
@@ -19,7 +19,7 @@ float AutoAttack::calc_instant_dmg()
 	//resolve buff consumption
 	//check if buff procced
 	//return damage
-	return player.get_buffed_attack_power() / 6 + player.get_wep_dps();
+	return (*player).get_buffed_attack_power() / 6 + (*player).get_wep_dps();
 }
 
 /*

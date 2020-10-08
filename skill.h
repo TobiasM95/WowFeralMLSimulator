@@ -2,23 +2,24 @@
 
 #include <vector>
 
-#include "player.h"
+class Player;
+class Buff;
 
 class Skill
 {
 protected:
-	Player player;
-	const std::vector<Buff> affected_by_buff;
-	const std::vector<Buff> consumes_buff;
-	const std::vector<Buff> can_proc_buff;
+	Player* player;
+	const std::vector<Buff*> affected_by_buff;
+	const std::vector<Buff*> consumes_buff;
+	const std::vector<Buff*> can_proc_buff;
 
 public:
 	Skill
 	(
-		Player& player,
-		std::vector<Buff> affected_by_buff,
-		std::vector<Buff> consumes_buff,
-		std::vector<Buff> can_proc_buff
+		Player* player,
+		std::vector<Buff*> affected_by_buff,
+		std::vector<Buff*> consumes_buff,
+		std::vector<Buff*> can_proc_buff
 	);
 
 	virtual float calc_instant_dmg() = 0;
@@ -31,22 +32,22 @@ protected:
 	float duration_left;
 	float tick_dmg;
 	float tick_every;
-	std::vector<Buff> tick_affected_by_buff;
-	std::vector<Buff> tick_consumes_buff;
-	std::vector<Buff> tick_can_proc_buff;
+	std::vector<Buff*> tick_affected_by_buff;
+	std::vector<Buff*> tick_consumes_buff;
+	std::vector<Buff*> tick_can_proc_buff;
 public:
 	Dot
 	(
-		Player& player, 
-		std::vector<Buff> affected_by_buff,
-		std::vector<Buff> consumes_buff, 
-		std::vector<Buff> can_proc_buff,
+		Player* player, 
+		std::vector<Buff*> affected_by_buff,
+		std::vector<Buff*> consumes_buff, 
+		std::vector<Buff*> can_proc_buff,
 		float max_duration, 
 		float tick_dmg, 
 		float tick_every,
-		std::vector<Buff> tick_affected_by_buff,
-		std::vector<Buff> tick_consumes_buff, 
-		std::vector<Buff> tick_can_proc_buff
+		std::vector<Buff*> tick_affected_by_buff,
+		std::vector<Buff*> tick_consumes_buff, 
+		std::vector<Buff*> tick_can_proc_buff
 	);
 
 	virtual float calc_tick_dmg() = 0;

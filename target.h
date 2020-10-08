@@ -5,7 +5,7 @@ class Skill;
 class Target
 {
 private:
-	float received_dmg = 0;
+	float received_dmg = 1;
 	float fight_duration = 0;
 	float dps = 0;
 public:
