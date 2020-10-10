@@ -1,10 +1,9 @@
 #pragma once
-
 #include <list>
 #include <string>
 #include <vector>
 
-class Buff;
+#include "buff.h"
 class Target;
 
 class Player
@@ -19,7 +18,7 @@ private:
 	const float base_gcd = 1.5f; //TODO: Check if this is correct gcd
 
 	//dynamic combat buffs and buffed stats
-	std::list<Buff*> stat_buffs, skill_buffs;
+	std::list<Buff> stat_buffs, skill_buffs;
 	int buffed_attack_power = 0;
 	float buffed_crit = 0, buffed_haste = 0, buffed_versatility = 0, buffed_mastery = 0;
 
@@ -32,13 +31,13 @@ private:
 	void update_buffs_and_stats(float time_delta);
 public:
 	Player(float wep_dps, int agility, float crit, float haste, float versatility, float mastery);
-	void tick(float time_delta, Target* target);
+	void tick(float time_delta, Target &target);
 
 	//stat getters
 	
 	float get_wep_dps() const { return wep_dps; }
-	std::list<Buff*> get_stat_buffs() const { return stat_buffs; }
-	std::list<Buff*> get_skill_buffs() const { return skill_buffs; }
+	std::list<Buff> get_stat_buffs() const { return stat_buffs; }
+	std::list<Buff> get_skill_buffs() const { return skill_buffs; }
 	int get_buffed_attack_power() const { return buffed_attack_power; }
 	float get_buffed_crit() const { return buffed_crit; }
 	float get_buffed_haste() const { return buffed_haste; }

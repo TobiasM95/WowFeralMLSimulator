@@ -1,6 +1,7 @@
 #include "target.h"
 #include "skill.h"
 
+
 #include <iostream>
 
 void Target::resolve(Skill& s)
@@ -14,6 +15,6 @@ void Target::tick(float time_delta)
 	//TODO: implement dot updates and their effects, see notepad ++
 	fight_duration += time_delta;
 	dps = received_dmg / fight_duration;
-	//std::cout << "Fight duration: " << fight_duration << " - DPS: " << dps << "      \r";
+	std::cout << "Fight duration: " << fight_duration << " - DPS: " << dps << "      \r";
 }
 

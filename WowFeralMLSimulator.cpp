@@ -1,6 +1,3 @@
-// WowFeralMLSimulator.cpp : Diese Datei enthält die Funktion "main". Hier beginnt und endet die Ausführung des Programms.
-//
-
 #include <iostream>
 #include <vector>
 
@@ -17,8 +14,8 @@ int main()
     {
         //initialize player
         Player p1(15, 329, 0.2209f, 0.1223f, 0.301f, 0.0836f);
-        std::vector<Player*> players;
-        players.push_back(&p1);
+        std::vector<Player> players;
+        players.push_back(p1);
 
         //initialize target
         //Target t1;
