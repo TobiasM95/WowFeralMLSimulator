@@ -36,6 +36,9 @@
     <ClCompile Include="feral_skills.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="random_gen.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="player.h">
@@ -54,6 +57,9 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="feral_skills.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="random_gen.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

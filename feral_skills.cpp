@@ -4,6 +4,7 @@
 
 #include "player.h"
 #include "buff.h"
+#include "random_gen.h"
 
 
 AutoAttack::AutoAttack

@@ -4,10 +4,12 @@
 #include "player.h"
 #include "simulator.h"
 #include "target.h"
+#include "random_gen.h"
 
 int main()
 {
-    std::cout << "Hello World!\n";
+    std::cout << "Hello World! "<< rng_namespace::getRandom(0,20) << "  " << 
+        rng_namespace::getChance() <<"\n";
 
     
     for (int i = 0; i < 100000; i++)

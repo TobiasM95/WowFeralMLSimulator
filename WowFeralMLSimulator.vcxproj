@@ -142,6 +142,7 @@
     <ClCompile Include="buff.cpp" />
     <ClCompile Include="feral_skills.cpp" />
     <ClCompile Include="player.cpp" />
+    <ClCompile Include="random_gen.cpp" />
     <ClCompile Include="simulator.cpp" />
     <ClCompile Include="skill.cpp" />
     <ClCompile Include="target.cpp" />
@@ -151,6 +152,7 @@
     <ClInclude Include="buff.h" />
     <ClInclude Include="feral_skills.h" />
     <ClInclude Include="player.h" />
+    <ClInclude Include="random_gen.h" />
     <ClInclude Include="simulator.h" />
     <ClInclude Include="skill.h" />
     <ClInclude Include="target.h" />
