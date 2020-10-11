@@ -15,7 +15,7 @@ int main()
     for (int i = 0; i < 100000; i++)
     {
         //initialize player
-        Player p1(15, 329, 0.2209f, 0.1223f, 0.301f, 0.0836f);
+        Player p1(15, 329, 0.2209f, 0.1223f, 0.301f, 0.0836f, { 1,0,0,2,0,1,1 });
         std::vector<Player> players;
         players.push_back(p1);
 

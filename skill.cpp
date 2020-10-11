@@ -8,7 +8,7 @@
 
 Skill::Skill
 (
-	Player player,
+	Player& player,
 	std::vector<Buff> affected_by_buff,
 	std::vector<Buff> consumes_buff,
 	std::vector<Buff> can_proc_buff
@@ -22,7 +22,7 @@ Skill::Skill
 
 Dot::Dot
 (
-	Player player,
+	Player& player,
 	std::vector<Buff> affected_by_buff,
 	std::vector<Buff> consumes_buff, 
 	std::vector<Buff> can_proc_buff,

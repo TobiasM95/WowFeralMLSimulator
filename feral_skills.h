@@ -7,7 +7,7 @@ class AutoAttack : public Skill
 public:
 	AutoAttack
 	(
-		Player player
+		Player& player
 	);
 
 	float calc_instant_dmg() override;

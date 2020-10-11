@@ -140,6 +140,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="buff.cpp" />
+    <ClCompile Include="feral_buffs.cpp" />
     <ClCompile Include="feral_skills.cpp" />
     <ClCompile Include="player.cpp" />
     <ClCompile Include="random_gen.cpp" />
@@ -150,6 +151,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="buff.h" />
+    <ClInclude Include="feral_buffs.h" />
     <ClInclude Include="feral_skills.h" />
     <ClInclude Include="player.h" />
     <ClInclude Include="random_gen.h" />

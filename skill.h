@@ -6,7 +6,7 @@ class Buff;
 class Skill
 {
 protected:
-	Player player;
+	Player& player;
 	const std::vector<Buff> affected_by_buff;
 	const std::vector<Buff> consumes_buff;
 	const std::vector<Buff> can_proc_buff;
@@ -14,7 +14,7 @@ protected:
 public:
 	Skill
 	(
-		Player player,
+		Player& player,
 		std::vector<Buff> affected_by_buff,
 		std::vector<Buff> consumes_buff,
 		std::vector<Buff> can_proc_buff
@@ -36,7 +36,7 @@ protected:
 public:
 	Dot
 	(
-		Player player, 
+		Player& player, 
 		std::vector<Buff> affected_by_buff,
 		std::vector<Buff> consumes_buff, 
 		std::vector<Buff> can_proc_buff,
