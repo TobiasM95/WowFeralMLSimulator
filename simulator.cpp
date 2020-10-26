@@ -1,13 +1,18 @@
 #include "simulator.h"
 
 //Works, don't use pointers since you have to do lifetime management, which sucks..
-Simulator::Simulator(std::vector<Player> players) :
-	players(players)
+Simulator::Simulator(float simulation_duration, std::vector<Player> players) :
+	max_time(simulation_duration), players(players)
 {
-	//foreach player init one target
-	for (unsigned int i = 0; i < players.size(); i++) {
-		Target a;
-		targets.push_back(a);
+}
+
+void Simulator::init_player_targets()
+{
+	//Note: Here could be multitarget initialization in the future
+	for (Player& p : players)
+	{
+		Target t;
+		p.target = t;
 	}
 }
 
@@ -24,11 +29,7 @@ bool Simulator::tick()
 	}
 	for (unsigned int i = 0; i < players.size(); i++)
 	{
-		players.at(i).tick(time_delta, targets.at(i));
-	}
-	for (unsigned int i = 0; i < targets.size(); i++)
-	{
-		targets.at(i).tick(time_delta);
+		players.at(i).tick(time_delta);
 	}
 	current_time += time_delta;
 	return current_time > max_time;

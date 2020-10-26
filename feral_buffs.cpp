@@ -4,10 +4,10 @@
 
 OmenOfClarity::OmenOfClarity()
 	:
-	Buff("omen_of_clarity", BuffCategory::SkillBuff, 1, 15.0, false)
+	Buff("omen_of_clarity", BuffCategory::SkillBuff, 1, 1, 15.0, false)
 {}
 
 MomentOfClarity::MomentOfClarity()
 	:
-	Buff("moment_of_clarity", BuffCategory::SkillBuff, 2, 15.0, false)
+	Buff("moment_of_clarity", BuffCategory::SkillBuff, 1, 2, 15.0, false)
 {}

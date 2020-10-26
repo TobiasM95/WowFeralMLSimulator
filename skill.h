@@ -1,53 +1,52 @@
 #pragma once
 
-#include "player.h"
-class Buff;
+#include <string>
+#include <vector>
+
+class Player;
 
 class Skill
 {
-protected:
-	Player& player;
-	const std::vector<Buff> affected_by_buff;
-	const std::vector<Buff> consumes_buff;
-	const std::vector<Buff> can_proc_buff;
-
 public:
+	Player* player;
+	//NOTE: energy cost and cp requirement has to be static for rdy check and therefore in child
+	bool ignore_armor;
+
 	Skill
 	(
 		Player& player,
-		std::vector<Buff> affected_by_buff,
-		std::vector<Buff> consumes_buff,
-		std::vector<Buff> can_proc_buff
+		bool ignore_armor
 	);
 
-	virtual float calc_instant_dmg() = 0;
+	virtual float process_instant_effects() = 0;
 };
 
 class Dot : public Skill
 {
-protected:
+public:
+	std::string name;
 	float max_duration;
 	float duration_left;
-	float tick_dmg;
 	float tick_every;
-	std::vector<Buff> tick_affected_by_buff;
-	std::vector<Buff> tick_consumes_buff;
-	std::vector<Buff> tick_can_proc_buff;
-public:
+	bool can_pandemic;
+	float pandemic_window;
+	float tick_timer = 0.0f;
+	bool stealth_snapshotted = false;
+	bool tigers_fury_snapshotted = false;
+	bool bloodtalons_snapshotted = false;
+
 	Dot
 	(
-		Player& player, 
-		std::vector<Buff> affected_by_buff,
-		std::vector<Buff> consumes_buff, 
-		std::vector<Buff> can_proc_buff,
+		Player& player,
+		bool ignore_armor,
+		std::string name,
 		float max_duration, 
-		float tick_dmg, 
 		float tick_every,
-		std::vector<Buff> tick_affected_by_buff,
-		std::vector<Buff> tick_consumes_buff, 
-		std::vector<Buff> tick_can_proc_buff
+		bool can_pandemic,
+		float pandemic_window
 	);
 
-	virtual float calc_tick_dmg() = 0;
-	virtual float tick(float time_delta) = 0;
+	virtual float process_instant_effects() = 0;
+	virtual float process_dot_tick() = 0;
+	bool tick(float time_delta);
 };
