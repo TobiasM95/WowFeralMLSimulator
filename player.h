@@ -7,8 +7,6 @@
 #include "buff.h"
 #include "target.h"
 
-//TODO: Prowl management (prowl buff, stop autoattacking, resume when attack is cast)
-//TODO: Add variables is_prowl and incarn_prowl_charge
 class Player
 {
 private:

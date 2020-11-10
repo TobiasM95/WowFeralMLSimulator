@@ -289,7 +289,7 @@ bool Player::has_talent(int row, int col)
 	return talents.at(row) == col;
 }
 
-//TODO: Change Buff list to list of pointers?
+//NOTE: Change Buff list to list of pointers?
 std::list<Buff>::iterator Player::get_skill_buff(std::string name)
 {
 	return std::find(skill_buffs.begin(), skill_buffs.end(), name);
@@ -318,7 +318,7 @@ float Player::get_buffed_attack_power()
 	if (!attack_power_up_to_date)
 	{
 		attack_power_up_to_date = true;
-		//TODO: Implement attack power and agility buffs
+		//NOTE: Implement attack power and agility buffs
 		buffed_attack_power =  agility + 6 * wep_dps;
 	}
 	return buffed_attack_power;
@@ -330,11 +330,11 @@ float Player::get_buffed_crit()
 	{
 		crit_up_to_date = true;
 		float crit_rating = (float)crit_abs;
-		//TODO: Apply rating buffs here
-		//TODO: With Shadowlands apply penalty here 
+		//NOTE: Apply rating buffs here
+		//TODO_SL: With Shadowlands apply penalty here 
 		//Penalty: 0-25%:0%, 25-34%:10%, 34-42%:20%, 42-49%:30%, 49-106%:40%, >106%:100%
 		//Crit rating conversion: 1 rating = 0,00093718%
-		//TODO: Apply percentage buffs here, but also change crit_rel
+		//NOTE: Apply percentage buffs here, but also change crit_rel
 		buffed_crit = crit_rating * 0.00093718f + base_crit;
 	}
 	return buffed_crit;
@@ -346,11 +346,11 @@ float Player::get_buffed_haste()
 	{
 		haste_up_to_date = true;
 		float haste_rating = (float)haste_abs;
-		//TODO: Apply rating buffs here
-		//TODO: With Shadowlands apply penalty here 
+		//NOTE: Apply rating buffs here
+		//TODO_SL: With Shadowlands apply penalty here 
 		//Penalty: 0-25%:0%, 25-34%:10%, 34-42%:20%, 42-49%:30%, 49-106%:40%, >106%:100%
 		//haste rating conversion: 1 rating = 0,00093718%
-		//TODO: Apply percentage buffs here, but also change haste_rel
+		//NOTE: Apply percentage buffs here, but also change haste_rel
 		buffed_haste =  haste_rating * 0.00099359f + base_haste;
 	}
 	return buffed_haste;
@@ -362,11 +362,11 @@ float Player::get_buffed_versatility()
 	{
 		versatility_up_to_date = true;
 		float versatility_rating = (float)versatility_abs;
-		//TODO: Apply rating buffs here
-		//TODO: With Shadowlands apply penalty here 
+		//NOTE: Apply rating buffs here
+		//TODO_SL: With Shadowlands apply penalty here 
 		//Penalty: 0-25%:0%, 25-34%:10%, 34-42%:20%, 42-49%:30%, 49-106%:40%, >106%:100%
 		//versatility rating conversion: 1 rating = 0,00093718%
-		//TODO: Apply percentage buffs here, but also change versatility_rel
+		//NOTE: Apply percentage buffs here, but also change versatility_rel
 		buffed_versatility = versatility_rating * 0.00081875f + base_versatility;
 	}
 	return buffed_versatility;
@@ -378,11 +378,11 @@ float Player::get_buffed_mastery()
 	{
 		mastery_up_to_date = true;
 		float mastery_rating = (float)mastery_abs;
-		//TODO: Apply rating buffs here
-		//TODO: With Shadowlands apply penalty here 
+		//NOTE: Apply rating buffs here
+		//TODO_SL: With Shadowlands apply penalty here 
 		//Penalty: 0-25%:0%, 25-34%:10%, 34-42%:20%, 42-49%:30%, 49-106%:40%, >106%:100%
 		//mastery rating conversion: 1 rating = 0,00093718%
-		//TODO: Apply percentage buffs here, but also change mastery_rel
+		//NOTE: Apply percentage buffs here, but also change mastery_rel
 		buffed_mastery = mastery_rating * 0.00187422f + base_mastery;
 	}
 	return buffed_mastery;

@@ -1,6 +1,5 @@
 #include "buff.h"
 
-//TODO: Implement buff features, see notepad++
 Buff::Buff
 (
 	std::string name,
@@ -54,7 +53,6 @@ float Buff::update_duration(float time_delta)
 
 void Buff::add_duration(float duration)
 {
-	//TODO: Test if this works as a oneliner
 	this->duration = std::min(
 		max_duration + duration,
 		max_duration * (1.0f + can_pandemic * pandemic_window)

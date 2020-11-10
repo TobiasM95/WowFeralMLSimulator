@@ -33,7 +33,6 @@ float Simulator::get_current_time()
 
 bool Simulator::tick()
 {
-	//TODO: design a combat log system
 	if (current_time > max_time) {
 		return true;
 	}
@@ -43,7 +42,6 @@ bool Simulator::tick()
 	}
 	if (log_events)
 	{
-		//logger.log_dps(current_time, players);
 		logger.log_timestep(current_time, players);
 	}
 	current_time += time_delta;
@@ -66,6 +64,7 @@ void Logger::log_timestep(float current_time, std::vector<Player> players)
 	log_dps(current_time, players);
 	log_buffs(current_time, players);
 	log_dots(current_time, players);
+	//Events get registered automatically
 }
 
 void Logger::log_dps(float current_time, std::vector<Player> players)

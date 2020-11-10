@@ -19,7 +19,7 @@ int main()
     std::cout << "Hello World! "<< rng_namespace::getRandom(0,20) << "  " << 
         rng_namespace::getChance() <<"\n";
 
-    int num_runs = 1000;
+    int num_runs = 10000;
     float simulation_duration = 420.0f;
     bool log_single_run = true;
     std::string log_path = "C:/Users/Tobi/Documents/Programming/MachineLearning/WowFeralML/Fight_Logs/";

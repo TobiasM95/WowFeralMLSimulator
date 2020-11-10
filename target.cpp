@@ -38,7 +38,6 @@ void Target::resolve(std::shared_ptr<Dot> s)
 
 void Target::tick(float time_delta)
 {
-	//TODO: implement dot updates and their effects, see notepad ++
 	for (
 			std::list<std::shared_ptr<Dot>>::iterator i = active_dots.begin(); 
 			i != active_dots.end();

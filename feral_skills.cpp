@@ -35,7 +35,6 @@ std::pair<float, bool> AutoAttack::process_instant_effects()
 	player->autoattack_timer = 0.0f;
 
 	//check if buff procced
-	//TODO: Check if 1.5 multiplier for MoC is correct
 	double ooc_rng = rng_namespace::getChance();
 	bool has_moc = player->has_talent("moment_of_clarity");
 	float moc_multiplier = 1.0f + 0.5f * has_moc;
@@ -54,7 +53,6 @@ std::pair<float, bool> AutoAttack::process_instant_effects()
 	}
 
 	//return damage, check for crit
-	//TODO: Implement miss values
 	double crit_rng = rng_namespace::getChance();
 	float crit_multiplier = (float)(crit_rng < player->get_buffed_crit()) + 1.0f;
 	float damage_multiplier = 1.0f;
@@ -357,7 +355,7 @@ std::pair<float, bool> Brutal_Slash::process_instant_effects()
 }
 
 //Note: 8s-2*haste dot duration, 2s ticks is very janky way of doing FF, apparently its true (empirically)
-//TODO: Apaprently, neither init dmg nor tick dmg ignores armor, check this, calculations not always correct
+//NOTE: Apaprently, neither init dmg nor tick dmg ignores armor, check this, calculations not always correct
 //Weird damage calcs: 0.15*5*3*(agi+wep_dps*6)*vers*mastery*feral_aura*haste matches tooltip
 //Without haste and the *3 this matches dummy damage if armor is taken into account for one equip set
 //but only closely (deviation of 4%) for other gear sets, let this stay for now
@@ -699,7 +697,7 @@ std::pair<float, bool> Ferocious_Bite::process_instant_effects()
 
 	player->combopoints = 0;
 
-	//TODO: Find out why FB has this 2% multiplier weirdness that doesn't match the tooltip
+	//TODO_SL: Find out why FB has this 2% multiplier weirdness that doesn't match the tooltip
 	return std::pair<float, bool> {0.98f * damage_multiplier * (player->get_buffed_attack_power() * 0.9828f * (1 + player->get_buffed_versatility()) + additive_dmg), has_crit};
 }
 
@@ -829,8 +827,7 @@ bool Cat_Form::check_rdy(Player& player)
 
 std::pair<float, bool> Cat_Form::process_instant_effects()
 {
-	//TODO: This is probably a manual gcd with haste
-	player->start_gcd();
+	player->start_gcd(1.5f / (1.0f + player->get_buffed_haste()));
 	player->cat_form = true;
 	return std::pair<float, bool> {0.0f, false};
 }
@@ -850,8 +847,7 @@ bool Moonkin_Form::check_rdy(Player& player)
 
 std::pair<float, bool> Moonkin_Form::process_instant_effects()
 {
-	//TODO: This is probably a manual gcd with haste
-	player->start_gcd();
+	player->start_gcd(1.5f / (1.0f + player->get_buffed_haste()));
 	player->cat_form = false;
 	return std::pair<float, bool> {0.0f, false};
 }
