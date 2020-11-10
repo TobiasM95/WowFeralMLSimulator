@@ -19,8 +19,10 @@ public:
 	bool can_pandemic;
 	float pandemic_window;
 
-	Buff(std::string name, BuffCategory category, int init_stacks, int max_stacks, float max_duration, 
+	Buff(std::string name, BuffCategory category, int init_stacks, int max_stacks, float max_duration,
 		bool can_pandemic, float pandemic_window = 0.3f);
+	Buff(std::string name, BuffCategory category, int init_stacks, int max_stacks, 
+		float init_duration, float max_duration, bool can_pandemic, float pandemic_window = 0.3f);
 	float update_duration(float time_delta);
 	void add_duration(float duration);
 	void add_stack(int stacks);

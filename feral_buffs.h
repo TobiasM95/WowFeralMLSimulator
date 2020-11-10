@@ -85,3 +85,38 @@ public:
 	MomentOfClarity();
 };
 
+class Tigers_Fury_Buff : public Buff
+{
+public:
+	Tigers_Fury_Buff(bool predator);
+};
+
+class Berserk_Buff : public Buff
+{
+public:
+	Berserk_Buff(bool incarnation);
+};
+
+class Incarnation_Buff : public Buff
+{
+public:
+	Incarnation_Buff();
+};
+
+class Heart_Of_The_Wild_Buff : public Buff
+{
+public:
+	Heart_Of_The_Wild_Buff();
+};
+
+class Savage_Roar_Buff : public Buff
+{
+public:
+	Savage_Roar_Buff(float init_duration);
+};
+
+class Bloodtalons_Buff : public Buff
+{
+public:
+	Bloodtalons_Buff();
+};

@@ -19,4 +19,10 @@ namespace rng_namespace
     {
         return getRandom(0.0, 1.0);
     }
+
+    int getRandomInt(int min, int max)
+    {
+        std::uniform_int_distribution<int> dist(min, max);
+        return dist(mt);
+    }
 }

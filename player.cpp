@@ -3,6 +3,7 @@
 #include "target.h"
 #include "buff.h"
 #include "feral_buffs.h"
+#include "random_gen.h"
 
 //is needed for exception in has_talents
 #include <iostream>
@@ -13,7 +14,6 @@ Player::Player(float wep_dps, int agility, int crit_abs, int haste_abs, int mast
 	wep_dps(wep_dps), agility(agility), crit_abs(crit_abs), haste_abs(haste_abs), 
 	mastery_abs(mastery_abs), versatility_abs(versatility_abs), talents(talents)
 {
-	
 	apply_talent_passive_buffs();
 }
 
@@ -22,29 +22,21 @@ void Player::tick(float time_delta)
 	autoattack_timer += time_delta;
 	gcd_timer -= time_delta;
 	update_buffs_and_stats(time_delta);
+	update_cooldowns(time_delta);
 
-	//TODO: Energy update with buffed haste
+	//TODO: Check energy regen rates
 	energy = std::min(max_energy, energy + base_energy_regen * time_delta * (1.0f + get_buffed_haste()) * (1.0f + 0.1f * has_buff("savage_roar")));
 
-	if (!stealth && AutoAttack::check_rdy(*this)) 
+	perform_action();
+
+	if (!stealth && AutoAttack::check_rdy(*this))
 	{
 		AutoAttack a(*this);
-		target.resolve(a);
+		target->resolve(a);
 	}
 
-	//TODO: Perform action
-	if (!target.has_dot("rake_dot") && Rake::check_rdy(*this)) 
-	{
-		std::shared_ptr<Dot> r(new Rake(*this));
-		target.resolve(r);
-	}
-	else if (Shred::check_rdy(*this))
-	{
-		Shred s(*this);
-		target.resolve(s);
-	}
-
-	target.tick(time_delta);
+	target->tick(time_delta);
+	update_bt_tickers(time_delta);
 
 #ifdef _DEBUG
 	std::cout << "________PLAYER SUMMARY________\n";
@@ -64,7 +56,12 @@ void Player::tick(float time_delta)
 
 void Player::start_gcd()
 {
-	gcd_timer = base_gcd / (1.0f + get_buffed_haste());
+	gcd_timer = base_gcd;
+}
+
+void Player::start_gcd(float manual_gcd)
+{
+	gcd_timer = manual_gcd;
 }
 
 bool Player::gcd_ready()
@@ -167,6 +164,33 @@ void Player::update_buffs_and_stats(float time_delta)
 	mastery_up_to_date = false;
 }
 
+void Player::update_cooldowns(float time_delta)
+{
+	//Brutal slash is affected by haste
+	brutal_slash_cd_timer += (1.0f + get_buffed_haste()) * time_delta;
+	feral_frenzy_cd_timer += time_delta;
+	starsurge_cd_timer += time_delta;
+	berserk_cd_timer += time_delta;
+	tigers_fury_cd_timer += time_delta;
+}
+
+void Player::update_bt_tickers(float time_delta)
+{
+	if ((tslu_shred < 4.0f) + (tslu_rake < 4.0f) + (tslu_thrash < 4.0f) + (tslu_brutal_slash < 4.0f) >= 3)
+	{
+		tslu_shred = 5.0f;
+		tslu_rake = 5.0f;
+		tslu_thrash = 5.0f;
+		tslu_brutal_slash = 5.0f;
+		Bloodtalons_Buff btb = {};
+		proc_buff(btb, 2, true);
+	}
+	tslu_shred += time_delta;
+	tslu_rake += time_delta;
+	tslu_thrash += time_delta;
+	tslu_brutal_slash += time_delta;
+}
+
 void Player::proc_buff(Buff& buff, int stacks, bool reset_duration) 
 {
 	Buff *existing_buff = nullptr;
@@ -265,6 +289,7 @@ bool Player::has_talent(int row, int col)
 	return talents.at(row) == col;
 }
 
+//TODO: Change Buff list to list of pointers?
 std::list<Buff>::iterator Player::get_skill_buff(std::string name)
 {
 	return std::find(skill_buffs.begin(), skill_buffs.end(), name);
@@ -361,4 +386,297 @@ float Player::get_buffed_mastery()
 		buffed_mastery = mastery_rating * 0.00187422f + base_mastery;
 	}
 	return buffed_mastery;
+}
+
+int Player::charge_count(std::string name)
+{
+	if (name == "brutal_slash")
+		return std::min(
+			(int)(brutal_slash_cd_timer / brutal_slash_cd),
+			brutal_slash_charges
+		);
+	else if (name == "feral_frenzy")
+		return std::min(
+			(int)(feral_frenzy_cd_timer / feral_frenzy_cd),
+			feral_frenzy_charges
+		);
+	else if (name == "starsurge")
+		return std::min(
+			(int)(starsurge_cd_timer / starsurge_cd),
+			starsurge_charges
+		);
+	else if (name == "berserk")
+		return std::min(
+			(int)(berserk_cd_timer / berserk_cd),
+			berserk_charges
+		);
+	else if (name == "tigers_fury")
+		return std::min(
+			(int)(tigers_fury_cd_timer / tigers_fury_cd),
+			tigers_fury_charges
+		);
+	else if (name == "heart_of_the_wild")
+		return std::min(
+			(int)(heart_of_the_wild_cd_timer / heart_of_the_wild_cd),
+			heart_of_the_wild_charges
+		);
+	else
+		throw std::invalid_argument("Skill with charges does not exist: " + name);
+}
+
+void Player::use_charge(std::string name)
+{
+	if (name == "brutal_slash")
+	{
+		if (brutal_slash_cd_timer > brutal_slash_cd * brutal_slash_charges)
+			brutal_slash_cd_timer = brutal_slash_cd * (brutal_slash_charges - 1);
+		else
+			brutal_slash_cd_timer -= brutal_slash_cd;
+	}
+	else if (name == "feral_frenzy")
+	{
+		if (feral_frenzy_cd_timer > feral_frenzy_cd * feral_frenzy_charges)
+			feral_frenzy_cd_timer = feral_frenzy_cd * (feral_frenzy_charges - 1);
+		else
+			feral_frenzy_cd_timer -= feral_frenzy_cd;
+	}
+	else if (name == "starsurge")
+	{
+		if (starsurge_cd_timer > starsurge_cd * starsurge_charges)
+			starsurge_cd_timer = starsurge_cd * (starsurge_charges - 1);
+		else
+			starsurge_cd_timer -= starsurge_cd;
+	}
+	else if (name == "berserk")
+	{
+		if (berserk_cd_timer > berserk_cd * berserk_charges)
+			berserk_cd_timer = berserk_cd * (berserk_charges - 1);
+		else
+			berserk_cd_timer -= berserk_cd;
+	}
+	else if (name == "tigers_fury")
+	{
+		if (tigers_fury_cd_timer > tigers_fury_cd * tigers_fury_charges)
+			tigers_fury_cd_timer = tigers_fury_cd * (tigers_fury_charges - 1);
+		else
+			tigers_fury_cd_timer -= tigers_fury_cd;
+	}
+	else if (name == "heart_of_the_wild")
+	{
+		if (heart_of_the_wild_cd_timer > heart_of_the_wild_cd * heart_of_the_wild_charges)
+			heart_of_the_wild_cd_timer = heart_of_the_wild_cd * (heart_of_the_wild_charges - 1);
+		else
+			heart_of_the_wild_cd_timer -= heart_of_the_wild_cd;
+	}
+	else
+		throw std::invalid_argument("Skill with charges does not exist: " + name);
+}
+
+void Player::perform_action()
+{
+	std::vector<float> sv = get_state_vector();
+	if(gcd_ready())
+		perform_random_action();
+}
+
+void Player::perform_random_action()
+{
+	std::vector<int> valid_action_mask = get_valid_action_mask();
+
+	std::vector<int> action_indices;
+	action_indices.reserve(valid_action_mask.size());
+	for (size_t ai = 0; ai < valid_action_mask.size(); ai++)
+	{
+		if(valid_action_mask.at(ai) == 1)
+			action_indices.push_back(ai);
+	}
+
+	int act_ind = rng_namespace::getRandomInt(0, action_indices.size()-1);
+	int selected_action = action_indices.at(act_ind);
+
+	start_action_by_index(selected_action);
+}
+
+std::vector<float> Player::get_state_vector()
+{
+	/* State vector description
+	* 0: Energy divided by 100
+	* all CDs are divided by base max length
+	* 1: CD: Brutal slash cd = std::max(0, cd - cd_timer), gives value > 0 only if no charge available
+	* 2: CD: Feral frenzy cd = std::max(0, cd - cd_timer), gives value > 0 only if no charge available
+	* 3: CD: Starsurge cd = std::max(0, cd - cd_timer), gives value > 0 only if no charge available
+	* 4: CD: Berserk slash cd = std::max(0, cd - cd_timer), gives value > 0 only if no charge available
+	* 5: CD: Tigers fury slash cd = std::max(0, cd - cd_timer), gives value > 0 only if no charge available
+	* 6: CD: Heart of the wild slash cd = std::max(0, cd - cd_timer), gives value > 0 only if no charge available
+	* 7: Charge: Brutal slash charges
+	* all dots are divided by base max length
+	* 8: DOT: Rake dot duration has_dot?duration_left:0
+	* 9: DOT: Thrash dot duration has_dot?duration_left:0
+	* 10: DOT: Feral frenzy dot duration has_dot?duration_left:0
+	* 11: DOT: moonfire feral dot duration has_dot?duration_left:0
+	* 12: DOT: Sunfire dot duration has_dot?duration_left:0
+	* 13: DOT: Rip dot duration has_dot?duration_left:0
+	* all bufs are divided by base max length
+	* 14: BUFF: Tigers Fury duration left has_buff?duration_left:0
+	* 15: BUFF: Berserk duration left has_buff?duration_left:0
+	* 16: BUFF: Heart of the wild duration left has_buff?duration_left:0
+	* 17: BUFF: Savage roar duration left has_buff?duration_left:0
+	* 18: BUFF: Bloodtalons duration left has_buff?duration_left:0
+	* 19: BUFF: OoC/MoC duration left has_buff?duration_left:0
+	* misc
+	* 20: cat form, 1 for true
+	* 21: combopoints / 5.0f
+	*/
+	std::vector<float> state_vector(22);
+	state_vector.at(0) = energy / 100.0f;
+	//cooldowns
+	state_vector.at(1) = std::max(0.0f, brutal_slash_cd - brutal_slash_cd_timer) / brutal_slash_cd;
+	state_vector.at(2) = std::max(0.0f, feral_frenzy_cd - feral_frenzy_cd_timer) / feral_frenzy_cd;
+	state_vector.at(3) = std::max(0.0f, starsurge_cd - starsurge_cd_timer) / starsurge_cd;
+	state_vector.at(4) = std::max(0.0f, berserk_cd - berserk_cd_timer) / berserk_cd;
+	state_vector.at(5) = std::max(0.0f, tigers_fury_cd - tigers_fury_cd_timer) / tigers_fury_cd;
+	state_vector.at(6) = std::max(0.0f, heart_of_the_wild_cd - heart_of_the_wild_cd_timer) / heart_of_the_wild_cd;
+	//charges
+	state_vector.at(7) = charge_count("brutal_slash") * 1.0f / brutal_slash_charges;
+	//dots
+	std::shared_ptr<Dot> rake_dot = target->get_dot("rake_dot");
+	state_vector.at(8) = rake_dot ? rake_dot->duration_left / rake_dot->max_duration : 0.0f;
+	std::shared_ptr<Dot> thrash_dot = target->get_dot("thrash_dot");
+	state_vector.at(9) = thrash_dot ? thrash_dot->duration_left / thrash_dot->max_duration : 0.0f;
+	std::shared_ptr<Dot> feral_frenzy_dot = target->get_dot("feral_frenzy_dot");
+	state_vector.at(10) = feral_frenzy_dot ? feral_frenzy_dot->duration_left / feral_frenzy_dot->max_duration : 0.0f;
+	std::shared_ptr<Dot> moonfire_feral_dot = target->get_dot("moonfire_feral_dot");
+	state_vector.at(11) = moonfire_feral_dot ? moonfire_feral_dot->duration_left / moonfire_feral_dot->max_duration : 0.0f;
+	std::shared_ptr<Dot> sunfire_dot = target->get_dot("sunfire_dot");
+	state_vector.at(12) = sunfire_dot ? sunfire_dot->duration_left / sunfire_dot->max_duration : 0.0f;
+	std::shared_ptr<Dot> rip_dot = target->get_dot("rip_dot");
+	state_vector.at(13) = rip_dot ? rip_dot->duration_left / rip_dot->max_duration : 0.0f;
+	//buffs
+	std::list<Buff>::iterator tigers_fury_buff = get_skill_buff("tigers_fury");
+	state_vector.at(14) = (tigers_fury_buff != skill_buffs.end()) ? tigers_fury_buff->duration / tigers_fury_buff->max_duration : 0.0f;
+	std::list<Buff>::iterator berserk_buff = get_skill_buff("berserk");
+	state_vector.at(15) = (berserk_buff != skill_buffs.end()) ? berserk_buff->duration / berserk_buff->max_duration : 0.0f;
+	std::list<Buff>::iterator heart_of_the_wild_buff = get_skill_buff("heart_of_the_wild");
+	state_vector.at(16) = (heart_of_the_wild_buff != skill_buffs.end()) ? heart_of_the_wild_buff->duration / heart_of_the_wild_buff->max_duration : 0.0f;
+	std::list<Buff>::iterator savage_roar_buff = get_skill_buff("savage_roar");
+	state_vector.at(17) = (savage_roar_buff != skill_buffs.end()) ? savage_roar_buff->duration / savage_roar_buff->max_duration : 0.0f;
+	std::list<Buff>::iterator bloodtalons_buff = get_skill_buff("bloodtalons");
+	state_vector.at(18) = (bloodtalons_buff != skill_buffs.end()) ? bloodtalons_buff->duration / bloodtalons_buff->max_duration : 0.0f;
+	std::list<Buff>::iterator omen_of_clarity_buff = get_skill_buff("omen_of_clarity");
+	std::list<Buff>::iterator moment_of_clarity_buff = get_skill_buff("moment_of_clarity");
+	state_vector.at(19) = std::max(
+		(omen_of_clarity_buff != skill_buffs.end()) ? omen_of_clarity_buff->duration / omen_of_clarity_buff->max_duration : 0.0f,
+		(moment_of_clarity_buff != skill_buffs.end()) ? moment_of_clarity_buff->duration / moment_of_clarity_buff->max_duration : 0.0f
+		);
+	//misc
+	state_vector.at(20) = 1.0f * cat_form;
+	state_vector.at(21) = combopoints / 5.0f;
+	return state_vector;
+}
+
+std::vector<int> Player::get_valid_action_mask()
+{
+	/*action index positions
+	*  0: shred
+	*  1: rake
+	*  2: thrash
+	*  3: brutal_slash
+	*  4: feral_frenzy
+	*  5: moonfire_feral
+	*  6: sunfire
+	*  7: starsurge
+	*  8: rip
+	*  9: ferocious_bite
+	* 10: savage_roar
+	* 11: tigers_fury
+	* 12: berserk
+	* 13: heart_of_the_wild
+	* 14: cat_form
+	* 15: moonkin_form
+	* 16: idle
+	*/
+	std::vector<int> valid_action_mask(17);
+	if (Shred::check_rdy(*this))
+		valid_action_mask.at(0) = 1;
+	if (Rake::check_rdy(*this))
+		valid_action_mask.at(1) = 1;
+	if (Thrash::check_rdy(*this))
+		valid_action_mask.at(2) = 1;
+	if (Brutal_Slash::check_rdy(*this))
+		valid_action_mask.at(3) = 1;
+	if (Feral_Frenzy::check_rdy(*this))
+		valid_action_mask.at(4) = 1;
+	if (Moonfire_Feral::check_rdy(*this))
+		valid_action_mask.at(5) = 1;
+	if (Sunfire::check_rdy(*this))
+		valid_action_mask.at(6) = 1;
+	if (Starsurge::check_rdy(*this))
+		valid_action_mask.at(7) = 1;
+	if (Rip::check_rdy(*this))
+		valid_action_mask.at(8) = 1;
+	if (Ferocious_Bite::check_rdy(*this))
+		valid_action_mask.at(9) = 1;
+	if (Savage_Roar::check_rdy(*this))
+		valid_action_mask.at(10) = 1;
+	if (Tigers_Fury::check_rdy(*this))
+		valid_action_mask.at(11) = 1;
+	if (Berserk::check_rdy(*this))
+		valid_action_mask.at(12) = 1;
+	if (Heart_Of_The_Wild::check_rdy(*this))
+		valid_action_mask.at(13) = 1;
+	if (Cat_Form::check_rdy(*this))
+		valid_action_mask.at(14) = 1;
+	if (Moonkin_Form::check_rdy(*this))
+		valid_action_mask.at(15) = 1;
+	//idle is always ready
+	valid_action_mask.at(16) = 1;
+
+	return valid_action_mask;
+}
+
+void Player::start_action_by_index(int action_index)
+{
+#ifdef _DEBUG
+	switch (action_index)
+	{
+	case 0: {Shred a(*this); target->resolve(a); std::cout << "Perform Shred\n"; }break;
+	case 1: {target->resolve(std::shared_ptr<Dot>(new Rake(*this))); std::cout << "Perform Rake\n"; }break;
+	case 2: {target->resolve(std::shared_ptr<Dot>(new Thrash(*this))); std::cout << "Perform Thrash\n"; }break;
+	case 3: {Brutal_Slash a(*this); target->resolve(a); std::cout << "Perform Brutal Slash\n"; }break;
+	case 4: {target->resolve(std::shared_ptr<Dot>(new Feral_Frenzy(*this))); std::cout << "Perform Feral Frenzy\n"; }break;
+	case 5: {target->resolve(std::shared_ptr<Dot>(new Moonfire_Feral(*this))); std::cout << "Perform Moonfire (Feral)\n"; }break;
+	case 6: {target->resolve(std::shared_ptr<Dot>(new Sunfire(*this))); std::cout << "Perform Sunfire\n"; }break;
+	case 7: {Starsurge a(*this); target->resolve(a); std::cout << "Perform Starsurge\n"; }break;
+	case 8: {target->resolve(std::shared_ptr<Dot>(new Rip(*this))); std::cout << "Perform Rip\n"; }break;
+	case 9: {Ferocious_Bite a(*this); target->resolve(a); std::cout << "Perform Ferocious Bite\n"; }break;
+	case 10: {Savage_Roar a(*this); target->resolve(a); std::cout << "Perform Savage Roar\n"; }break;
+	case 11: {Tigers_Fury a(*this); target->resolve(a); std::cout << "Perform Tiger's Fury\n"; }break;
+	case 12: {Berserk a(*this); target->resolve(a); std::cout << "Perform Berserk\n"; }break;
+	case 13: {Heart_Of_The_Wild a(*this); target->resolve(a); std::cout << "Perform Heart of the Wild\n"; }break;
+	case 14: {Cat_Form a(*this); target->resolve(a); std::cout << "Perform Cat Form\n"; }break;
+	case 15: {Moonkin_Form a(*this); target->resolve(a); std::cout << "Perform Moonkin Form\n"; }break;
+	case 16: {std::cout << "Perform Idle\n"; }break;
+	}
+#else
+	switch (action_index)
+	{
+	case 0: {Shred a(*this); target->resolve(a); }break;
+	case 1: {target->resolve(std::shared_ptr<Dot>(new Rake(*this))); }break;
+	case 2: {target->resolve(std::shared_ptr<Dot>(new Thrash(*this))); }break;
+	case 3: {Brutal_Slash a(*this); target->resolve(a); }break;
+	case 4: {target->resolve(std::shared_ptr<Dot>(new Feral_Frenzy(*this))); }break;
+	case 5: {target->resolve(std::shared_ptr<Dot>(new Moonfire_Feral(*this))); }break;
+	case 6: {target->resolve(std::shared_ptr<Dot>(new Sunfire(*this))); }break;
+	case 7: {Starsurge a(*this); target->resolve(a); }break;
+	case 8: {target->resolve(std::shared_ptr<Dot>(new Rip(*this))); }break;
+	case 9: {Ferocious_Bite a(*this); target->resolve(a); }break;
+	case 10: {Savage_Roar a(*this); target->resolve(a); }break;
+	case 11: {Tigers_Fury a(*this); target->resolve(a); }break;
+	case 12: {Berserk a(*this); target->resolve(a); }break;
+	case 13: {Heart_Of_The_Wild a(*this); target->resolve(a); }break;
+	case 14: {Cat_Form a(*this); target->resolve(a); }break;
+	case 15: {Moonkin_Form a(*this); target->resolve(a); }break;
+	case 16: {};
+	}
+#endif
 }
