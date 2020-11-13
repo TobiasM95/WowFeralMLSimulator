@@ -11,6 +11,7 @@ class Player
 {
 private:
 	//static character stat values
+	float wep_speed;
 	float wep_dps;
 	int agility;
 	int crit_abs, haste_abs, versatility_abs, mastery_abs;
@@ -60,8 +61,11 @@ private:
 	void update_bt_tickers(float time_delta);
 
 	void start_action_by_index(int action_index);
+
+	void perform_random_action();
+	void perform_model_action();
 public:
-	Player(float wep_dps, int agility, int crit_abs, 
+	Player(float wep_speed, float wep_dps, int agility, int crit_abs, 
 		int haste_abs, int versatility_abs, int mastery_abs,
 		std::array<int, 7> talents);
 	void tick(float time_delta);
@@ -81,7 +85,6 @@ public:
 	bool has_buff(std::string name);
 
 	void perform_action();
-	void perform_random_action();
 
 	float get_buffed_attack_power();
 	float get_buffed_crit();
@@ -105,6 +108,7 @@ public:
 
 	//wep dps is static but is directly used to calculate auto attack dmg
 	float get_wep_dps() const { return wep_dps; }
+	float get_wep_speed() const { return wep_speed; }
 	//dynamic combat buffs and buffed stats
 	std::list<Buff> stat_buffs, skill_buffs;
 

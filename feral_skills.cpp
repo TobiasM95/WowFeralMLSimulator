@@ -21,18 +21,17 @@ const bool AutoAttack::need_combopoints = false;
 
 bool AutoAttack::check_rdy(Player& player)
 {
-	return player.autoattack_timer > player.base_auto_attack_speed;
+	return player.autoattack_timer <= 0;
 }
 
 std::pair<float, bool> AutoAttack::process_instant_effects()
 {
-	//TODO: Check how auto attack cooldown gets handled when switching stances and when casting spells
 	//NOTE: Autohit works like currently implemented, a autohit cooldown gets set to weapon speed
 	//and decreased per elapsed time, therefore a non cat autoattack can be performed 1s after last
 	//cat form autoattack and cat form autoattack can be performed wep_speed s after last attack
-	//TODO: Implement non catform autoattack with wep speed etc
 
-	player->autoattack_timer = 0.0f;
+	player->autoattack_timer = player->cat_form? 1.0f: player->get_wep_speed();
+	player->autoattack_timer /= 1.0f + player->get_buffed_haste();
 
 	//check if buff procced
 	double ooc_rng = rng_namespace::getChance();
@@ -56,11 +55,20 @@ std::pair<float, bool> AutoAttack::process_instant_effects()
 	double crit_rng = rng_namespace::getChance();
 	float crit_multiplier = (float)(crit_rng < player->get_buffed_crit()) + 1.0f;
 	float damage_multiplier = 1.0f;
-	damage_multiplier *= 1 + 0.4f * player->has_buff("cat_form");
+	damage_multiplier *= 1 + 0.4f * player->cat_form;
 	damage_multiplier *= 1 + 0.15f * player->has_buff("tigers_fury");
 	damage_multiplier *= (1 + 0.15f * player->has_buff("savage_roar"));
 	damage_multiplier *= 1 + player->get_buffed_versatility();
-	return std::pair<float, bool> {damage_multiplier* crit_multiplier* player->get_buffed_attack_power() / 6.0f, crit_multiplier > 1.0f};
+	float res_damage;
+	if (player->cat_form)
+	{
+		res_damage = damage_multiplier * crit_multiplier * player->get_buffed_attack_power() / 6.0f;
+	}
+	else
+	{
+		res_damage = damage_multiplier * crit_multiplier * (player->get_wep_dps() + (player->get_wep_speed() * player->get_buffed_attack_power()) / 6.0f);
+	}
+	return std::pair<float, bool> {res_damage, crit_multiplier > 1.0f};
 }
 
 //Generators
@@ -254,6 +262,19 @@ std::pair<float, bool> Thrash::process_instant_effects()
 	damage_multiplier *= (1 + 0.15f * player->has_buff("savage_roar"));
 	//check for buffs and process each existing buff (call player.has_buff for each buff)
 	//resolve buff consumption
+	std::list<Buff>::iterator clarity_iterator = player->get_skill_buff("omen_of_clarity");
+	if (clarity_iterator != player->skill_buffs.end())
+	{
+		player->consume_buff(clarity_iterator, "skill_buffs");
+		res_energy_cost = 0.0f;
+	}
+	clarity_iterator = player->get_skill_buff("moment_of_clarity");
+	if (clarity_iterator != player->skill_buffs.end())
+	{
+		player->consume_buff(clarity_iterator, "skill_buffs");
+		res_energy_cost = 0.0f;
+		damage_multiplier *= 1.15f;
+	}
 	//start gcd, subtract energy (if no ooc/moc), etc.
 	player->start_gcd();
 	res_energy_cost *= (1 - 0.2f * player->has_buff("incarnation"));

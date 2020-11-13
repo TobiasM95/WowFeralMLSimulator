@@ -4,14 +4,16 @@
 #include "buff.h"
 #include "feral_buffs.h"
 #include "random_gen.h"
+#include "simulator.h"
 
 //is needed for exception in has_talents
 #include <iostream>
 #include <algorithm>
+#include <numeric>
 
-Player::Player(float wep_dps, int agility, int crit_abs, int haste_abs, int mastery_abs, 
+Player::Player(float wep_speed, float wep_dps, int agility, int crit_abs, int haste_abs, int mastery_abs, 
 	int versatility_abs, std::array<int, 7> talents) :
-	wep_dps(wep_dps), agility(agility), crit_abs(crit_abs), haste_abs(haste_abs), 
+	wep_speed(wep_speed), wep_dps(wep_dps), agility(agility), crit_abs(crit_abs), haste_abs(haste_abs), 
 	mastery_abs(mastery_abs), versatility_abs(versatility_abs), talents(talents)
 {
 	apply_talent_passive_buffs();
@@ -19,7 +21,7 @@ Player::Player(float wep_dps, int agility, int crit_abs, int haste_abs, int mast
 
 void Player::tick(float time_delta)
 {
-	autoattack_timer += time_delta;
+	autoattack_timer -= time_delta;
 	gcd_timer -= time_delta;
 	update_buffs_and_stats(time_delta);
 	update_cooldowns(time_delta);
@@ -474,13 +476,47 @@ void Player::use_charge(std::string name)
 
 void Player::perform_action()
 {
-	std::vector<float> sv = get_state_vector();
-	if(gcd_ready())
-		perform_random_action();
+	perform_model_action();
+	//perform_random_action();
+}
+
+void Player::perform_model_action()
+{
+	//delayed reward here, so just call logger with 0 reward
+	std::vector<int> val_act_mask = get_valid_action_mask();
+	if (std::accumulate(val_act_mask.begin(), val_act_mask.end(), 0) == 1)
+		return;
+	std::vector<float> state = get_state_vector();
+
+	//action selection routine, placeholder start
+	std::vector<int> action_indices;
+	action_indices.reserve(val_act_mask.size());
+	for (size_t ai = 0; ai < val_act_mask.size(); ai++)
+	{
+		if (val_act_mask.at(ai) == 1)
+			action_indices.push_back(ai);
+	}
+
+	int act_ind = rng_namespace::getRandomInt(0, action_indices.size() - 1);
+	int selected_action = action_indices.at(act_ind);
+	//placeholder end
+
+	start_action_by_index(selected_action);
+	std::vector<float> new_state = get_state_vector();
+	if (target->simulator->log_events)
+	{
+		target->simulator->logger.log_transitions(
+			id, state, selected_action, val_act_mask, 0, new_state
+		);
+	}
 }
 
 void Player::perform_random_action()
 {
+	if (!gcd_ready())
+		return;
+	std::vector<float> sv = get_state_vector();
+
 	std::vector<int> valid_action_mask = get_valid_action_mask();
 
 	std::vector<int> action_indices;
@@ -596,41 +632,51 @@ std::vector<int> Player::get_valid_action_mask()
 	* 16: idle
 	*/
 	std::vector<int> valid_action_mask(17);
-	if (Shred::check_rdy(*this))
-		valid_action_mask.at(0) = 1;
-	if (Rake::check_rdy(*this))
-		valid_action_mask.at(1) = 1;
-	if (Thrash::check_rdy(*this))
-		valid_action_mask.at(2) = 1;
-	if (Brutal_Slash::check_rdy(*this))
-		valid_action_mask.at(3) = 1;
-	if (Feral_Frenzy::check_rdy(*this))
-		valid_action_mask.at(4) = 1;
-	if (Moonfire_Feral::check_rdy(*this))
-		valid_action_mask.at(5) = 1;
-	if (Sunfire::check_rdy(*this))
-		valid_action_mask.at(6) = 1;
-	if (Starsurge::check_rdy(*this))
-		valid_action_mask.at(7) = 1;
-	if (Rip::check_rdy(*this))
-		valid_action_mask.at(8) = 1;
-	if (Ferocious_Bite::check_rdy(*this))
-		valid_action_mask.at(9) = 1;
-	if (Savage_Roar::check_rdy(*this))
-		valid_action_mask.at(10) = 1;
-	if (Tigers_Fury::check_rdy(*this))
-		valid_action_mask.at(11) = 1;
-	if (Berserk::check_rdy(*this))
-		valid_action_mask.at(12) = 1;
-	if (Heart_Of_The_Wild::check_rdy(*this))
-		valid_action_mask.at(13) = 1;
-	if (Cat_Form::check_rdy(*this))
-		valid_action_mask.at(14) = 1;
-	if (Moonkin_Form::check_rdy(*this))
-		valid_action_mask.at(15) = 1;
-	//idle is always ready
-	valid_action_mask.at(16) = 1;
-
+	if (gcd_ready())
+	{
+		if (Shred::check_rdy(*this))
+			valid_action_mask.at(0) = 1;
+		if (Rake::check_rdy(*this))
+			valid_action_mask.at(1) = 1;
+		if (Thrash::check_rdy(*this))
+			valid_action_mask.at(2) = 1;
+		if (Brutal_Slash::check_rdy(*this))
+			valid_action_mask.at(3) = 1;
+		if (Feral_Frenzy::check_rdy(*this))
+			valid_action_mask.at(4) = 1;
+		if (Moonfire_Feral::check_rdy(*this))
+			valid_action_mask.at(5) = 1;
+		if (Sunfire::check_rdy(*this))
+			valid_action_mask.at(6) = 1;
+		if (Starsurge::check_rdy(*this))
+			valid_action_mask.at(7) = 1;
+		if (Rip::check_rdy(*this))
+			valid_action_mask.at(8) = 1;
+		if (Ferocious_Bite::check_rdy(*this))
+			valid_action_mask.at(9) = 1;
+		if (Savage_Roar::check_rdy(*this))
+			valid_action_mask.at(10) = 1;
+		if (Tigers_Fury::check_rdy(*this))
+			valid_action_mask.at(11) = 1;
+		if (Berserk::check_rdy(*this))
+			valid_action_mask.at(12) = 1;
+		if (Heart_Of_The_Wild::check_rdy(*this))
+			valid_action_mask.at(13) = 1;
+		if (Cat_Form::check_rdy(*this))
+			valid_action_mask.at(14) = 1;
+		if (Moonkin_Form::check_rdy(*this))
+			valid_action_mask.at(15) = 1;
+		//idle is always ready
+		valid_action_mask.at(16) = 1;
+	}
+	else
+	{
+		if (Tigers_Fury::check_rdy(*this))
+			valid_action_mask.at(11) = 1;
+		if (Berserk::check_rdy(*this))
+			valid_action_mask.at(12) = 1;
+		valid_action_mask.at(16) = 1;
+	}
 	return valid_action_mask;
 }
 

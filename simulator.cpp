@@ -48,6 +48,19 @@ bool Simulator::tick()
 	return current_time > max_time;
 }
 
+void Simulator::update_transitions(int mode)
+{
+	switch (mode) {
+	case 0: {
+		for (Player p : players)
+		{
+			logger.update_transitions(p.id, p.target->received_dmg / p.target->fight_duration);
+		}
+	}break;
+	}
+		
+}
+
 void Logger::init_logger(std::vector<Player> players)
 {
 	for (auto p : players)
@@ -56,6 +69,7 @@ void Logger::init_logger(std::vector<Player> players)
 		buff_log.insert(std::pair<int, std::vector<status_timestamp> >(p.id, std::vector<status_timestamp>()));
 		dot_log.insert(std::pair<int, std::vector<status_timestamp> >(p.id, std::vector<status_timestamp>()));
 		event_log.insert(std::pair<int, std::vector<status_timestamp> >(p.id, std::vector<status_timestamp>()));
+		transition_log.insert(std::pair<int, std::vector<ml_datapoint> >(p.id, std::vector<ml_datapoint>()));
 	}
 }
 
@@ -121,4 +135,21 @@ void Logger::log_events(float current_time, Skill& s, float dmg, bool crit, bool
 		dmg
 	};
 	event_log.at(s.player->id).push_back(curr_event);
+}
+
+void Logger::update_transitions(int id, float reward)
+{
+	for (ml_datapoint& dp : transition_log.at(id))
+	{
+		dp.reward = reward;
+	}
+}
+
+void Logger::log_transitions(
+	int id, std::vector<float> state, int action, std::vector<int> valid_action_mask,
+	float reward, std::vector<float> new_state
+)
+{
+	ml_datapoint dp = { state, action, valid_action_mask, reward, new_state };
+	transition_log.at(id).push_back(dp);
 }
