@@ -19,6 +19,44 @@ Player::Player(float wep_speed, float wep_dps, int agility, int crit_abs, int ha
 	apply_talent_passive_buffs();
 }
 
+void Player::reset()
+{
+	buffed_attack_power = 0;
+	buffed_crit = 0;
+	buffed_haste = 0;
+	buffed_versatility = 0;
+	buffed_mastery = 0;
+	attack_power_up_to_date = false;
+	crit_up_to_date = false;
+	haste_up_to_date = false;
+	versatility_up_to_date = false;
+	mastery_up_to_date = false;
+	brutal_slash_cd_timer = 3000;
+	feral_frenzy_cd_timer = 3000;
+	starsurge_cd_timer = 3000;
+	berserk_cd_timer = 3000;
+	tigers_fury_cd_timer = 3000;
+	heart_of_the_wild_cd_timer = 3000;
+	brutal_slash_charges = 3;
+	feral_frenzy_charges = 1;
+	starsurge_charges = 1;
+	berserk_charges = 1;
+	tigers_fury_charges = 1;
+	heart_of_the_wild_charges = 1;
+	stat_buffs.clear();
+	skill_buffs.clear();
+	autoattack_timer = 5.0f, gcd_timer = 0.0f;
+	combopoints = 0;
+	energy = max_energy;
+	stealth = true;
+	cat_form = true;
+	ooc_icd = 0.0f;
+	tslu_shred = 5.0f;
+	tslu_rake = 5.0f;
+	tslu_thrash = 5.0f;
+	tslu_brutal_slash = 5.0f;
+}
+
 void Player::tick(float time_delta)
 {
 	autoattack_timer -= time_delta;
@@ -84,51 +122,6 @@ void Player::reset_combopoints()
 void Player::apply_talent_passive_buffs()
 {
 	//NOTE: Only additional talent effects are changed here, do talent checking with has_talent instead
-	/*
-	if (has_talent("predator"))
-	{
-		TalentPredator t; skill_buffs.push_back(t);
-	}
-	if (has_talent("sabertooth"))
-	{
-		TalentSabertooth t; skill_buffs.push_back(t);
-	}
-	if (has_talent("lunar_inspiration"))
-	{
-		TalentLunarInspiration t; skill_buffs.push_back(t);
-	}
-	if (has_talent("heart_of_the_wild"))
-	{
-		TalentHeartOfTheWild t; skill_buffs.push_back(t);
-	}
-	if (has_talent("soul_of_the_forest"))
-	{
-		TalentSoulOfTheForest t; skill_buffs.push_back(t);
-	}
-	if (has_talent("savage_roar"))
-	{
-		TalentSavageRoar t; skill_buffs.push_back(t);
-	}
-	if (has_talent("incarnation"))
-	{
-		TalentIncarnation t; skill_buffs.push_back(t);
-	}
-	if (has_talent("brutal_slash"))
-	{
-		TalentBrutalSlash t; skill_buffs.push_back(t);
-	}
-	if (has_talent("moment_of_clarity"))
-	{
-		TalentMomentOfClarity t; skill_buffs.push_back(t);
-	}
-	if (has_talent("bloodtalons"))
-	{
-		TalentBloodtalons t; skill_buffs.push_back(t);
-	}
-	if (has_talent("feral_frenzy"))
-	{
-		TalentFeralFrenzy t; skill_buffs.push_back(t);
-	}*/
 	if (has_talent("moment_of_clarity")) {
 		max_energy = 130;
 		energy = 130;

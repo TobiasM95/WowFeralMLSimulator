@@ -68,6 +68,7 @@ public:
 	Player(float wep_speed, float wep_dps, int agility, int crit_abs, 
 		int haste_abs, int versatility_abs, int mastery_abs,
 		std::array<int, 7> talents);
+	void reset();
 	void tick(float time_delta);
 	void start_gcd();
 	void start_gcd(float manual_gcd);
@@ -104,7 +105,7 @@ public:
 	const int max_combopoints = 5;
 	const float base_auto_attack_speed = 1;
 	const float base_gcd = 1.0f;
-	const float feral_aura_buff = 1.2f;
+	const float feral_aura_buff = 1.29f;
 
 	//wep dps is static but is directly used to calculate auto attack dmg
 	float get_wep_dps() const { return wep_dps; }
@@ -119,7 +120,6 @@ public:
 	float max_energy = 100;
 	float base_energy_regen = 10.0f; //TODO: Check base energy regen value
 	bool stealth = true;
-	bool has_inc_stealth_charge = false;
 	bool cat_form = true;
 
 	//misc combat values

@@ -19,7 +19,7 @@ int main()
     std::cout << "Hello World! "<< rng_namespace::getRandom(0,20) << "  " << 
         rng_namespace::getChance() <<"\n";
 
-    int num_runs = 100;
+    int num_runs = 1000;
     float simulation_duration = 420.0f;
     bool log_single_run = true;
     std::string log_path = "C:/Users/Tobi/Documents/Programming/MachineLearning/WowFeralML/Fight_Logs/";
@@ -46,13 +46,7 @@ int main()
     Player p2(3.6f, 12.8f, 424, 156, 78, 32, 142, { 1,0,0,2,0,1,0 });
     players.push_back(p2);
 
-    //initialize target
-    //Target t1;
-    //std::vector<Target*> targets;
-    //targets.push_back(&t1);
-
     //initialize simulator
-    //Simulator simulator(players, targets);
     Simulator simulator(simulation_duration, players, log_single_run);
     bool simulation_complete = false;
     do
@@ -74,11 +68,6 @@ void run_simulations_parallel(size_t num_runs, float simulation_duration)
             std::vector<Player> players;
             players.push_back(p1);
 
-            //initialize target
-            //Target t1;
-            //std::vector<Target*> targets;
-            //targets.push_back(&t1);
-
             //initialize simulator
             //Simulator simulator(players, targets);
             Simulator simulator(simulation_duration, players, false);
@@ -94,6 +83,7 @@ void run_simulations_parallel(size_t num_runs, float simulation_duration)
 
 void run_simulations_serial(size_t num_runs, float simulation_duration)
 {
+    //Both variants take the same amount of time
     for (size_t i = 0; i < num_runs; i++)
     {
         //initialize player
@@ -101,22 +91,35 @@ void run_simulations_serial(size_t num_runs, float simulation_duration)
         std::vector<Player> players;
         players.push_back(p1);
 
-        //initialize target
-        //Target t1;
-        //std::vector<Target*> targets;
-        //targets.push_back(&t1);
-
         //initialize simulator
-        //Simulator simulator(players, targets);
         Simulator simulator(simulation_duration, players, false);
         bool simulation_complete = false;
         do
         {
             simulation_complete = simulator.tick();
         } while (!simulation_complete);
-        //if (i % (num_runs / 100) == 0)
-        //    std::cout << "Run " << i << " of " << num_runs << " completed...\n";
     }
+    
+    /*
+    //initialize player
+    Player p1(3.6f, 12.8f, 424, 156, 78, 32, 142, { 1,0,0,2,0,1,0 });
+    std::vector<Player> players;
+    players.push_back(p1);
+
+    //initialize simulator
+    Simulator simulator(simulation_duration, players, false);
+    bool simulation_complete = false;
+
+    for (size_t i = 0; i < num_runs; i++)
+    {
+        simulation_complete = false;
+        do
+        {
+            simulation_complete = simulator.tick();
+        } while (!simulation_complete);
+        simulator.reset(true);
+    }
+    */
 }
 
 void write_logs_to_disk(std::string path, Logger logger)

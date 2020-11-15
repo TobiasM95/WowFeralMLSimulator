@@ -16,6 +16,20 @@ Simulator::Simulator(float simulation_duration, std::vector<Player> players, boo
 	}
 }
 
+void Simulator::reset(bool reset_logger)
+{
+	for(Player &p : players)
+	{
+		p.reset();
+		p.target->reset();
+	}
+	current_time = 0;
+	if (log_events && reset_logger)
+	{
+		logger.reset();
+	}
+}
+
 void Simulator::init_player_targets()
 {
 	//Note: Here could be multitarget initialization in the future
@@ -70,6 +84,18 @@ void Logger::init_logger(std::vector<Player> players)
 		dot_log.insert(std::pair<int, std::vector<status_timestamp> >(p.id, std::vector<status_timestamp>()));
 		event_log.insert(std::pair<int, std::vector<status_timestamp> >(p.id, std::vector<status_timestamp>()));
 		transition_log.insert(std::pair<int, std::vector<ml_datapoint> >(p.id, std::vector<ml_datapoint>()));
+	}
+}
+
+void Logger::reset()
+{
+	for (size_t i = 0; i < dps_log.size(); i++)
+	{
+		dps_log.at(i).clear();
+		buff_log.at(i).clear();
+		dot_log.at(i).clear();
+		event_log.at(i).clear();
+		transition_log.at(i).clear();
 	}
 }
 

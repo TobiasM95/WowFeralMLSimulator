@@ -23,6 +23,7 @@ public:
 	float fight_duration = 0;
 	std::list<std::shared_ptr<Dot>> active_dots;
 
+	void reset();
 	void resolve(Skill& s);
 	void resolve(std::shared_ptr<Dot> s);
 	void tick(float time_delta);

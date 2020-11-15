@@ -30,6 +30,7 @@ public:
 	std::map<int, std::vector<ml_datapoint>> transition_log;
 
 	void init_logger(std::vector<Player> players);
+	void reset();
 	void log_timestep(float current_time, std::vector<Player> players);
 	void log_dps(float current_time, std::vector<Player> players);
 	void log_buffs(float current_time, std::vector<Player> players);
@@ -54,6 +55,7 @@ public:
 	Logger logger;
 
 	Simulator(float simulation_duration, std::vector<Player> players, bool log_events);
+	void reset(bool reset_logger);
 	void init_player_targets();
 	float get_current_time();
 	bool tick();

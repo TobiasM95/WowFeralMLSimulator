@@ -13,6 +13,13 @@ Target::Target(Simulator* simulator)
 {
 }
 
+void Target::reset() 
+{
+	received_dmg = 0;
+	fight_duration = 0;
+	active_dots.clear();
+}
+
 void Target::resolve(Skill& s)
 {
 	float damage_reduction = 1.0f - (armor / (armor + k_value)) * !s.ignore_armor;
