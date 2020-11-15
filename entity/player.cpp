@@ -1,10 +1,10 @@
 #include "player.h"
-#include "feral_skills.h"
-#include "target.h"
-#include "buff.h"
-#include "feral_buffs.h"
-#include "random_gen.h"
-#include "simulator.h"
+#include "../skills/feral_skills.h"
+#include "../entity/target.h"
+#include "../buffs/buff.h"
+#include "../buffs/feral_buffs.h"
+#include "../utils/random_gen.h"
+#include "../simulator/simulator.h"
 
 //is needed for exception in has_talents
 #include <iostream>
@@ -334,7 +334,7 @@ float Player::get_buffed_crit()
 		float crit_rating = (float)crit_abs;
 		//NOTE: Apply rating buffs here
 		//TODO_SL: With Shadowlands apply penalty here 
-		//Penalty: 0-25%:0%, 25-34%:10%, 34-42%:20%, 42-49%:30%, 49-106%:40%, >106%:100%
+		//Penalty: 0-30%:0%, 30-39%:10%, 39-47%:30%, 47-54%:30%, 54-66%:40%, 66-126%:50%, >126%:100%
 		//Crit rating conversion: 1 rating = 0,00093718%
 		//NOTE: Apply percentage buffs here, but also change crit_rel
 		buffed_crit = crit_rating * 0.00093718f + base_crit;
@@ -350,7 +350,7 @@ float Player::get_buffed_haste()
 		float haste_rating = (float)haste_abs;
 		//NOTE: Apply rating buffs here
 		//TODO_SL: With Shadowlands apply penalty here 
-		//Penalty: 0-25%:0%, 25-34%:10%, 34-42%:20%, 42-49%:30%, 49-106%:40%, >106%:100%
+		//Penalty: 0-30%:0%, 30-39%:10%, 39-47%:30%, 47-54%:30%, 54-66%:40%, 66-126%:50%, >126%:100%
 		//haste rating conversion: 1 rating = 0,00093718%
 		//NOTE: Apply percentage buffs here, but also change haste_rel
 		buffed_haste =  haste_rating * 0.00099359f + base_haste;
@@ -366,7 +366,7 @@ float Player::get_buffed_versatility()
 		float versatility_rating = (float)versatility_abs;
 		//NOTE: Apply rating buffs here
 		//TODO_SL: With Shadowlands apply penalty here 
-		//Penalty: 0-25%:0%, 25-34%:10%, 34-42%:20%, 42-49%:30%, 49-106%:40%, >106%:100%
+		//Penalty: 0-30%:0%, 30-39%:10%, 39-47%:30%, 47-54%:30%, 54-66%:40%, 66-126%:50%, >126%:100%
 		//versatility rating conversion: 1 rating = 0,00093718%
 		//NOTE: Apply percentage buffs here, but also change versatility_rel
 		buffed_versatility = versatility_rating * 0.00081875f + base_versatility;
@@ -382,7 +382,7 @@ float Player::get_buffed_mastery()
 		float mastery_rating = (float)mastery_abs;
 		//NOTE: Apply rating buffs here
 		//TODO_SL: With Shadowlands apply penalty here 
-		//Penalty: 0-25%:0%, 25-34%:10%, 34-42%:20%, 42-49%:30%, 49-106%:40%, >106%:100%
+		//Penalty: 0-30%:0%, 30-39%:10%, 39-47%:30%, 47-54%:30%, 54-66%:40%, 66-126%:50%, >126%:100%
 		//mastery rating conversion: 1 rating = 0,00093718%
 		//NOTE: Apply percentage buffs here, but also change mastery_rel
 		buffed_mastery = mastery_rating * 0.00187422f + base_mastery;

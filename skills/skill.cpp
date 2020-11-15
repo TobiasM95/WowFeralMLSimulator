@@ -2,9 +2,9 @@
 
 #include <vector>
 #include <list>
-#include "target.h"
-#include "buff.h"
-#include "player.h"
+#include "../entity/target.h"
+#include "../buffs/buff.h"
+#include "../entity/player.h"
 
 
 Skill::Skill

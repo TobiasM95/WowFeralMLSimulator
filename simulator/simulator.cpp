@@ -1,5 +1,5 @@
 #include "simulator.h"
-#include "skill.h"
+#include "../skills/skill.h"
 
 //Works, don't use pointers since you have to do lifetime management, which sucks..
 Simulator::Simulator(float simulation_duration, std::vector<Player> players, bool log_events) :

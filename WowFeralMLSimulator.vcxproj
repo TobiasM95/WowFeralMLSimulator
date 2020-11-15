@@ -37,7 +37,7 @@
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -139,25 +139,29 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="buff.cpp" />
-    <ClCompile Include="feral_buffs.cpp" />
-    <ClCompile Include="feral_skills.cpp" />
-    <ClCompile Include="player.cpp" />
-    <ClCompile Include="random_gen.cpp" />
-    <ClCompile Include="simulator.cpp" />
-    <ClCompile Include="skill.cpp" />
-    <ClCompile Include="target.cpp" />
-    <ClCompile Include="WowFeralMLSimulator.cpp" />
+    <ClCompile Include="buffs\buff.cpp" />
+    <ClCompile Include="buffs\feral_buffs.cpp" />
+    <ClCompile Include="skills\feral_skills.cpp" />
+    <ClCompile Include="entity\player.cpp" />
+    <ClCompile Include="utils\communication_handler.cpp" />
+    <ClCompile Include="utils\message.cpp" />
+    <ClCompile Include="utils\random_gen.cpp" />
+    <ClCompile Include="simulator\simulator.cpp" />
+    <ClCompile Include="skills\skill.cpp" />
+    <ClCompile Include="entity\target.cpp" />
+    <ClCompile Include="simulator\WowFeralMLSimulator.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="buff.h" />
-    <ClInclude Include="feral_buffs.h" />
-    <ClInclude Include="feral_skills.h" />
-    <ClInclude Include="player.h" />
-    <ClInclude Include="random_gen.h" />
-    <ClInclude Include="simulator.h" />
-    <ClInclude Include="skill.h" />
-    <ClInclude Include="target.h" />
+    <ClInclude Include="buffs\buff.h" />
+    <ClInclude Include="buffs\feral_buffs.h" />
+    <ClInclude Include="skills\feral_skills.h" />
+    <ClInclude Include="entity\player.h" />
+    <ClInclude Include="utils\communication_handler.h" />
+    <ClInclude Include="utils\message.h" />
+    <ClInclude Include="utils\random_gen.h" />
+    <ClInclude Include="simulator\simulator.h" />
+    <ClInclude Include="skills\skill.h" />
+    <ClInclude Include="entity\target.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />

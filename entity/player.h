@@ -4,7 +4,7 @@
 #include <vector>
 #include <array>
 
-#include "buff.h"
+#include "../buffs/buff.h"
 #include "target.h"
 
 class Player

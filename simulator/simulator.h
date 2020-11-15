@@ -3,8 +3,8 @@
 #include <map>
 #include <vector>
 #include <array>
-#include "target.h"
-#include "player.h"
+#include "../entity/target.h"
+#include "../entity/player.h"
 
 class Logger
 {

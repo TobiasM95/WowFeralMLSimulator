@@ -1,7 +1,7 @@
-#include "simulator.h"
-#include "target.h"
-#include "player.h"
-#include "skill.h"
+#include "../simulator/simulator.h"
+#include "../entity/player.h"
+#include "../entity/target.h"
+#include "../skills/skill.h"
 
 #ifdef _DEBUG
 #include <iostream>

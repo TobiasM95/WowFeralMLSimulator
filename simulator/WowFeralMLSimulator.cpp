@@ -5,10 +5,10 @@
 #include <ppl.h>
 #include <chrono>
 
-#include "player.h"
+#include "../entity/player.h"
 #include "simulator.h"
-#include "target.h"
-#include "random_gen.h"
+#include "../entity/target.h"
+#include "../utils/random_gen.h"
 
 void run_simulations_parallel(size_t, float);
 void run_simulations_serial(size_t, float);
@@ -19,7 +19,7 @@ int main()
     std::cout << "Hello World! "<< rng_namespace::getRandom(0,20) << "  " << 
         rng_namespace::getChance() <<"\n";
 
-    int num_runs = 1000;
+    int num_runs = 100;
     float simulation_duration = 420.0f;
     bool log_single_run = true;
     std::string log_path = "C:/Users/Tobi/Documents/Programming/MachineLearning/WowFeralML/Fight_Logs/";
@@ -32,7 +32,8 @@ int main()
         << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "[ms]" << std::endl;
 #else
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-    run_simulations_parallel(num_runs, simulation_duration);
+    //run_simulations_parallel(num_runs, simulation_duration);
+    run_simulations_serial(num_runs, simulation_duration);
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
     std::cout << num_runs << " runs complete!\nTime elapse: "
         << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "[ms]" << std::endl;

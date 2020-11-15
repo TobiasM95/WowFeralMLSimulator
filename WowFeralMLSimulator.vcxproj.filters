@@ -15,57 +15,69 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="WowFeralMLSimulator.cpp">
+    <ClCompile Include="simulator\WowFeralMLSimulator.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="player.cpp">
+    <ClCompile Include="simulator\simulator.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="simulator.cpp">
+    <ClCompile Include="entity\player.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="target.cpp">
+    <ClCompile Include="entity\target.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="skill.cpp">
+    <ClCompile Include="skills\feral_skills.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="buff.cpp">
+    <ClCompile Include="skills\skill.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="feral_skills.cpp">
+    <ClCompile Include="buffs\feral_buffs.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="random_gen.cpp">
+    <ClCompile Include="buffs\buff.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="feral_buffs.cpp">
+    <ClCompile Include="utils\random_gen.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\message.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\communication_handler.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="player.h">
+    <ClInclude Include="simulator\simulator.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="simulator.h">
+    <ClInclude Include="entity\player.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="target.h">
+    <ClInclude Include="entity\target.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="skill.h">
+    <ClInclude Include="skills\feral_skills.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="buff.h">
+    <ClInclude Include="skills\skill.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="feral_skills.h">
+    <ClInclude Include="buffs\feral_buffs.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="random_gen.h">
+    <ClInclude Include="buffs\buff.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="feral_buffs.h">
+    <ClInclude Include="utils\random_gen.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\message.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\communication_handler.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

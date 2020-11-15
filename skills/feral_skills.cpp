@@ -2,10 +2,10 @@
 
 #include <vector>
 
-#include "player.h"
-#include "buff.h"
-#include "feral_buffs.h"
-#include "random_gen.h"
+#include "../entity/player.h"
+#include "../buffs/buff.h"
+#include "../buffs/feral_buffs.h"
+#include "../utils/random_gen.h"
 
 
 AutoAttack::AutoAttack

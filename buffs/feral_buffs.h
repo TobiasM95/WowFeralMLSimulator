@@ -1,5 +1,5 @@
 #pragma once
-#include "buff.h"
+#include "../buffs/buff.h"
 
 //Talent passive buffs
 //NOTE: Exclude non damage affecting talents (e.g. tiger dash etc.)
