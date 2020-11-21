@@ -6,6 +6,8 @@
 #include "../entity/target.h"
 #include "../entity/player.h"
 
+class CommunicationHandler;
+
 class Logger
 {
 public:
@@ -52,13 +54,29 @@ private:
 	std::vector<Player> players;
 public:
 	bool log_events = false;
+	bool log_transitions = false;
 	Logger logger;
+	std::shared_ptr<CommunicationHandler> comm_handler;
 
-	Simulator(float simulation_duration, std::vector<Player> players, bool log_events);
+	Simulator(
+		float simulation_duration, 
+		std::vector<Player> players, 
+		bool log_events, 
+		bool log_transitions
+	);
+	Simulator(
+		float simulation_duration,
+		std::vector<Player> players,
+		bool log_events,
+		bool log_transitions,
+		std::shared_ptr<CommunicationHandler> comm_handler
+	);
 	void reset(bool reset_logger);
 	void init_player_targets();
 	float get_current_time();
 	bool tick();
 
 	void update_transitions(int mode);
+	int piped_model_select_action(std::vector<float> state, std::vector<int> valid_action_mask);
+	void push_transitions_to_python();
 };

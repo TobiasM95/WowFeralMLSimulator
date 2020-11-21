@@ -64,7 +64,6 @@ void Player::tick(float time_delta)
 	update_buffs_and_stats(time_delta);
 	update_cooldowns(time_delta);
 
-	//TODO: Check energy regen rates
 	energy = std::min(max_energy, energy + base_energy_regen * time_delta * (1.0f + get_buffed_haste()) * (1.0f + 0.1f * has_buff("savage_roar")));
 
 	perform_action();
@@ -481,22 +480,12 @@ void Player::perform_model_action()
 		return;
 	std::vector<float> state = get_state_vector();
 
-	//action selection routine, placeholder start
-	std::vector<int> action_indices;
-	action_indices.reserve(val_act_mask.size());
-	for (size_t ai = 0; ai < val_act_mask.size(); ai++)
-	{
-		if (val_act_mask.at(ai) == 1)
-			action_indices.push_back(ai);
-	}
-
-	int act_ind = rng_namespace::getRandomInt(0, action_indices.size() - 1);
-	int selected_action = action_indices.at(act_ind);
-	//placeholder end
+	int selected_action = target->simulator->piped_model_select_action(state, val_act_mask);
+	//std::cout << "Selected action was" << selected_action << "\n";
 
 	start_action_by_index(selected_action);
 	std::vector<float> new_state = get_state_vector();
-	if (target->simulator->log_events)
+	if (target->simulator->log_transitions)
 	{
 		target->simulator->logger.log_transitions(
 			id, state, selected_action, val_act_mask, 0, new_state

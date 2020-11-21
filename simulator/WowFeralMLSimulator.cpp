@@ -9,12 +9,69 @@
 #include "simulator.h"
 #include "../entity/target.h"
 #include "../utils/random_gen.h"
+#include "../utils/communication_handler.h"
+#include "../utils/message.h"
 
+int standard_test_runs();
 void run_simulations_parallel(size_t, float);
 void run_simulations_serial(size_t, float);
 void write_logs_to_disk(std::string, Logger);
 
-int main()
+int main(int argc, char* argv[])
+{
+    //Set sim params
+    int num_players = 1;
+    int train_after_n_runs = 3;
+    float simulation_duration = 420.0f;
+
+    for (int i = 0; i < argc; i++)
+    {
+        auto arg = argv[i];
+        std::cout << arg << "\n";
+    }
+
+    //Connect to python pipe server
+    std::string pipeName = argv[argc - 1];
+    std::shared_ptr<CommunicationHandler> comm_handler(new CommunicationHandler{});
+    std::cout << "CONNECTING TO LOCAL PIPE: " + pipeName + "\n";
+    const char* pipeID = pipeName.c_str();
+    comm_handler->connect((LPCSTR)pipeID, 30);
+
+    while (comm_handler->isConnected())
+    {
+        for (int i = 0; i < train_after_n_runs; i++)
+        {
+            std::vector<Player> players;
+            for (int i = 0; i < num_players; i++)
+            {
+                Player p1(3.6f, 12.8f, 424, 156, 78, 32, 142, { 1,0,0,2,0,1,0 });
+                players.push_back(p1);
+            }
+            Simulator simulator(simulation_duration, players, false, true, comm_handler);
+            bool simulation_complete = false;
+            do
+            {
+                //std::cout << "Do simulation tick" << "\n";
+                simulation_complete = simulator.tick();
+                //Sleep(1000);
+            } while (!simulation_complete);
+            simulator.update_transitions(1);
+            //Push transitions to python
+            simulator.push_transitions_to_python();
+            std::cout << i + 1 << "/" << train_after_n_runs << " runs done!\n";
+        }
+        //Train python model and wait for epoch finish
+        auto c_to_py_msg = Message("FRSST", "");
+        comm_handler->sendMessage(&c_to_py_msg);
+        auto py_to_c_msg = comm_handler->getMessage();
+        if (py_to_c_msg.getHeader() == "FRSST")
+            continue;
+        else
+            break;
+    }
+}
+
+int standard_test_runs()
 {
     std::cout << "Hello World! "<< rng_namespace::getRandom(0,20) << "  " << 
         rng_namespace::getChance() <<"\n";
@@ -47,7 +104,7 @@ int main()
     players.push_back(p2);
 
     //initialize simulator
-    Simulator simulator(simulation_duration, players, log_single_run);
+    Simulator simulator(simulation_duration, players, log_single_run, false);
     bool simulation_complete = false;
     do
     {
@@ -70,7 +127,7 @@ void run_simulations_parallel(size_t num_runs, float simulation_duration)
 
             //initialize simulator
             //Simulator simulator(players, targets);
-            Simulator simulator(simulation_duration, players, false);
+            Simulator simulator(simulation_duration, players, false, false);
             bool simulation_complete = false;
             do
             {
@@ -92,7 +149,7 @@ void run_simulations_serial(size_t num_runs, float simulation_duration)
         players.push_back(p1);
 
         //initialize simulator
-        Simulator simulator(simulation_duration, players, false);
+        Simulator simulator(simulation_duration, players, false, false);
         bool simulation_complete = false;
         do
         {

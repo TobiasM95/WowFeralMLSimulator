@@ -1,16 +1,28 @@
 #include "simulator.h"
 #include "../skills/skill.h"
+#include "../utils/communication_handler.h"
 
 //Works, don't use pointers since you have to do lifetime management, which sucks..
-Simulator::Simulator(float simulation_duration, std::vector<Player> players, bool log_events) :
-	max_time(simulation_duration), players(players), log_events(log_events)
+Simulator::Simulator(float simulation_duration, std::vector<Player> players, bool log_events, bool log_transitions) :
+	Simulator(simulation_duration, players, log_events, log_transitions, nullptr)
+{
+}
+
+Simulator::Simulator(
+	float simulation_duration, 
+	std::vector<Player> players, 
+	bool log_events, 
+	bool log_transitions, 
+	std::shared_ptr<CommunicationHandler> comm_handler) :
+	max_time(simulation_duration), players(players), log_events(log_events), log_transitions(log_transitions),
+	comm_handler(comm_handler)
 {
 	for (size_t i = 0; i < this->players.size(); i++)
 	{
 		this->players.at(i).id = i;
 	}
 	init_player_targets();
-	if (log_events)
+	if (log_events || log_transitions)
 	{
 		logger.init_logger(this->players);
 	}
@@ -71,8 +83,74 @@ void Simulator::update_transitions(int mode)
 			logger.update_transitions(p.id, p.target->received_dmg / p.target->fight_duration);
 		}
 	}break;
+	case 1: {
+		for (Player p : players)
+		{
+			//Hardcoded normalized dps value with approximate dps max
+			logger.update_transitions(p.id, p.target->received_dmg / p.target->fight_duration / 2000.0f);
+		}
+	}break;
 	}
 		
+}
+
+int Simulator::piped_model_select_action(std::vector<float> state, std::vector<int> valid_action_mask)
+{
+	std::stringstream state_string;
+	state_string << state.size() << ";" << valid_action_mask.size() << ";";
+	for (float f : state)
+	{
+		state_string << f << ";";
+	}
+	for (int i : valid_action_mask)
+	{
+		state_string << i << ";";
+	}
+	//std::cout << "C: Send state string to pipe: " << state_string.str() << "\n";
+	auto c_to_py_msg = Message(FERAL_SIM_STATE_MESSAGE_HEADER, state_string.str());
+	comm_handler->sendMessage(&c_to_py_msg);
+	auto py_to_c_msg = comm_handler->getMessage();
+	if (py_to_c_msg.getHeader() == FERAL_SIM_AGENT_ACTION_IMMEDIATE_RESPONSE_MESSAGE_HEADER)
+		return std::stoi(py_to_c_msg.getBody());
+	else
+		return -1;
+}
+
+void Simulator::push_transitions_to_python()
+{
+	int num_transitions = 0;
+	for (auto const& x : logger.transition_log)
+	{
+		num_transitions += x.second.size();
+	}
+	std::stringstream tss;
+	for (auto const& player_transitions : logger.transition_log)
+	{
+		for (auto transition : player_transitions.second)
+		{
+			for (float sf : transition.state)
+			{
+				tss << sf << ";";
+			}
+			tss << transition.action << ";";
+			for (int ami : transition.valid_action_mask)
+			{
+				tss << ami << ";";
+			}
+			tss << transition.reward << ";";
+			for (size_t i = 0; i < transition.new_state.size() - 1; i++)
+			{
+				tss << transition.new_state.at(i) << ";";
+			}
+			tss << transition.new_state.at(transition.new_state.size() - 1) <<"\n";
+		}
+	}
+	auto c_to_py_msg = Message(FERAL_SIM_RESET_GAME_STATE_MESSAGE_HEADER, tss.str());
+	comm_handler->sendMessage(&c_to_py_msg);
+	auto py_to_c_msg = comm_handler->getMessage();
+	if (py_to_c_msg.getHeader() == FERAL_SIM_RESET_GAME_STATE_MESSAGE_HEADER)
+		return;
+	//Note: Maybe some error handling
 }
 
 void Logger::init_logger(std::vector<Player> players)

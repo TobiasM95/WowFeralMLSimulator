@@ -118,7 +118,7 @@ public:
 	int combopoints = 0;
 	float energy = 100;
 	float max_energy = 100;
-	float base_energy_regen = 10.0f; //TODO: Check base energy regen value
+	float base_energy_regen = 11.0f; 
 	bool stealth = true;
 	bool cat_form = true;
 
